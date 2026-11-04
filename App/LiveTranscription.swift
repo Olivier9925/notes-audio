@@ -16,6 +16,27 @@ final class LiveTranscription: ObservableObject {
     private var tapInstalled = false
     private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "fr-FR"))
 
+    init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(audioInterrupted(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(audioRouteChanged(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(audioReset(_:)), name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+    }
+    deinit { NotificationCenter.default.removeObserver(self) }
+    @objc private func audioInterrupted(_ notification: Notification) {
+        guard isRunning, let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              raw == AVAudioSession.InterruptionType.began.rawValue else { return }
+        finish(); error = "La transcription a été interrompue. Vous pouvez la redémarrer."
+    }
+    @objc private func audioRouteChanged(_ notification: Notification) {
+        guard isRunning, let raw = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              raw == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue else { return }
+        finish(); error = "Le microphone a été déconnecté. Vérifiez-le avant de reprendre."
+    }
+    @objc private func audioReset(_ notification: Notification) {
+        guard isRunning || isStarting else { return }
+        finish(); error = "Les services audio ont été réinitialisés. Vous pouvez réessayer."
+    }
+
     func start() async {
         guard !isRunning, !isStarting else { return }
         isStarting = true

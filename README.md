@@ -22,7 +22,7 @@ Le produit est réorienté vers la transcription en direct sans création de fic
 | Microphone sans fichier audio | Première implémentation | Tampons transmis au moteur Speech ; aucun fichier audio créé dans ce parcours. |
 | Correction et partage du texte | Première implémentation | Édition après arrêt et partage système ; non testés. |
 | Sauvegarde locale | Partiel | Plusieurs notes dans un fichier JSON atomique ; migration de l’ancienne note unique. Non compilé ni testé. |
-| Autorisations et erreurs | Partiel | Demandes microphone et reconnaissance vocale ; interruptions et limites du service à approfondir. |
+| Autorisations et erreurs | Partiel | Autorisations, interruptions audio, déconnexion et réinitialisation gérées ; non compilées ni testées sur appareil. |
 | Bibliothèque de notes, recherche et suppression | Partiel | Liste, recherche dans le texte et suppression confirmée implémentées ; non compilées ni testées. |
 | Diarisation et horodatage | À faire | Aucune attribution d’intervenant n’est inventée. |
 | Résumés IA et clés personnelles | À faire | Aucun traitement distant implémenté. |
