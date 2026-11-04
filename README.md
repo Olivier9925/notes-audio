@@ -29,10 +29,10 @@ Ce tableau décrit l’état du code et les validations réellement effectuées.
 | Manque d’espace et finalisation | À faire | Détection et traitement des erreurs insuffisants. |
 | Récupération après arrêt brutal | Partiel | Réintégration des fichiers orphelins lisibles ; intégrité et marqueurs non garantis. |
 | Bibliothèque et persistance | Partiel | Liste et index JSON ; migrations et réparation à compléter. |
-| Lecture et déplacement temporel | Partiel | Lecture et arrêt présents ; déplacement temporel absent. |
+| Lecture et déplacement temporel | Partiel | Lecture, arrêt et curseur implémentés ; non compilés ni testés sur appareil. |
 | Renommage et suppression | Partiel | Présents ; suppression fichier/index non transactionnelle. |
 | Recherche et organisation | Partiel | Recherche par titre ; transcriptions, dossiers et tags absents. |
-| Import audio | À faire | |
+| Import audio | Partiel | Sélection et copie locales, validation par le lecteur ; formats et comportement non testés sur appareil. |
 | App Intents, Raccourcis et bouton Action | À faire | |
 | Live Activity et Dynamic Island | À faire | |
 | Transcription Apple Speech | À faire | Capacités et limites à vérifier. |

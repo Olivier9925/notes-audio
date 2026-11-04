@@ -1,5 +1,6 @@
 import SwiftUI
 import NotesAudioDomain
+import UniformTypeIdentifiers
 
 @main
 struct NotesAudioApp: App {
@@ -12,6 +13,7 @@ struct LibraryView: View {
     @State private var search = ""
     @State private var editing: Recording?
     @State private var title = ""
+    @State private var showingImporter = false
     var body: some View {
         NavigationStack {
             List {
@@ -32,6 +34,7 @@ struct LibraryView: View {
                     Text("Informez les personnes concernées et respectez leur consentement.").font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Bibliothèque") {
+                    Button("Importer un fichier audio") { showingImporter = true }
                     let filtered = store.recordings.filter { search.isEmpty || $0.title.localizedCaseInsensitiveContains(search) }
                     if filtered.isEmpty { Text("Aucun enregistrement disponible.").foregroundStyle(.secondary) }
                     ForEach(filtered) { item in
@@ -45,10 +48,21 @@ struct LibraryView: View {
                                 Button("Renommer") { title = item.title; editing = item }
                                 Button("Supprimer", role: .destructive) { store.delete(item) }
                             }.buttonStyle(.borderless)
+                            if store.playingID == item.id, store.playbackDuration > 0 {
+                                Slider(value: Binding(get: { store.playbackTime }, set: { store.seek(to: $0) }), in: 0...store.playbackDuration)
+                                    .accessibilityLabel("Position de lecture")
+                                Text("\(Int(store.playbackTime)) / \(Int(store.playbackDuration)) secondes").font(.caption)
+                            }
                         }
                     }
                 }
-                Section("Fonctions à venir") { Text("Import, transcription, intervenants, résumés et export ne sont pas encore disponibles.") }
+                Section("Fonctions à venir") { Text("Transcription, intervenants, résumés et export ne sont pas encore disponibles.") }
+            }
+            .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.audio]) { result in
+                switch result {
+                case .success(let url): store.importAudio(from: url)
+                case .failure: store.error = "Impossible de sélectionner le fichier."
+                }
             }
             .navigationTitle("Notes Audio")
             .searchable(text: $search, prompt: "Rechercher un titre")

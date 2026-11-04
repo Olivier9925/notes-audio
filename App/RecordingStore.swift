@@ -11,10 +11,13 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
     @Published var level: Float = 0
     @Published var error: String?
     @Published var playingID: UUID?
+    @Published var playbackTime: TimeInterval = 0
+    @Published var playbackDuration: TimeInterval = 0
     private var starting = false
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
     private var timer: Timer?
+    private var playbackTimer: Timer?
     private var activeID: UUID?
     private var activeURL: URL?
     private var markers: [Marker] = []
@@ -91,7 +94,15 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
             }
         } catch { status = "Erreur"; self.error = "Démarrage impossible : \(error.localizedDescription)" }
     }
-    private enum CaptureError: LocalizedError { case cannotStart; var errorDescription: String? { "Le système audio n’a pas démarré." } }
+    private enum CaptureError: LocalizedError {
+        case cannotStart, invalidAudio
+        var errorDescription: String? {
+            switch self {
+            case .cannotStart: return "Le système audio n’a pas démarré."
+            case .invalidAudio: return "Le fichier audio est invalide."
+            }
+        }
+    }
     private func refresh() {
         guard let recorder else { return }
         elapsed = recorder.currentTime
@@ -120,25 +131,65 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
     }
     func delete(_ recording: Recording) {
         guard recording.id != activeID else { return }
+        if playingID == recording.id { stopPlayback() }
         do {
             let url = directory.appendingPathComponent(recording.audioFileName)
             if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
             recordings.removeAll { $0.id == recording.id }; persist()
         } catch { self.error = "Suppression impossible : \(error.localizedDescription)" }
     }
+    func importAudio(from source: URL) {
+        let accessible = source.startAccessingSecurityScopedResource()
+        defer { if accessible { source.stopAccessingSecurityScopedResource() } }
+        let ext = source.pathExtension.lowercased()
+        guard ["m4a", "mp3", "wav", "aac", "aiff", "caf"].contains(ext) else {
+            error = "Ce format n’est pas pris en charge pour l’import."
+            return
+        }
+        let id = UUID()
+        let destination = directory.appendingPathComponent(id.uuidString + "." + ext)
+        do {
+            try FileManager.default.copyItem(at: source, to: destination)
+            let audio = try AVAudioPlayer(contentsOf: destination)
+            guard audio.duration.isFinite, audio.duration > 0 else { throw CaptureError.invalidAudio }
+            let item = Recording(id: id, title: source.deletingPathExtension().lastPathComponent, audioFileName: destination.lastPathComponent, duration: audio.duration)
+            let updated = [item] + recordings
+            try JSONEncoder().encode(updated).write(to: indexURL, options: .atomic)
+            recordings = updated
+        } catch {
+            if FileManager.default.fileExists(atPath: destination.path) {
+                do { try FileManager.default.removeItem(at: destination) }
+                catch { self.error = "Import impossible ; une copie temporaire reste dans le stockage de l’application."; return }
+            }
+            self.error = "Import impossible : le fichier est illisible ou ne peut pas être copié."
+        }
+    }
+    func seek(to time: TimeInterval) {
+        guard let player, time.isFinite else { return }
+        player.currentTime = min(max(0, time), player.duration)
+        playbackTime = player.currentTime
+    }
     func play(_ recording: Recording) {
         guard recorder == nil, !starting else { error = "Arrêtez l’enregistrement avant la lecture."; return }
         do {
-            player?.stop()
+            stopPlayback()
             try AVAudioSession.sharedInstance().setCategory(.playback)
             let newPlayer = try AVAudioPlayer(contentsOf: directory.appendingPathComponent(recording.audioFileName))
             newPlayer.delegate = self
             guard newPlayer.play() else { throw CaptureError.cannotStart }
             player = newPlayer; playingID = recording.id
+            playbackDuration = newPlayer.duration; playbackTime = 0
+            playbackTimer?.invalidate()
+            playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, let player = self.player else { return }
+                    self.playbackTime = player.currentTime
+                }
+            }
         } catch { self.error = "Lecture impossible : \(error.localizedDescription)" }
     }
-    func stopPlayback() { player?.stop(); player = nil; playingID = nil }
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) { playingID = nil }
+    func stopPlayback() { playbackTimer?.invalidate(); playbackTimer = nil; player?.stop(); player = nil; playingID = nil; playbackTime = 0; playbackDuration = 0 }
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) { stopPlayback(); if !flag { error = "La lecture s’est arrêtée à cause d’une erreur." } }
     func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) { self.error = "Erreur d’encodage. Arrêtez et vérifiez l’enregistrement."; status = "Erreur" }
     @objc private func interrupted(_ notification: Notification) {
         guard recorder != nil, let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt, raw == AVAudioSession.InterruptionType.began.rawValue else { return }
