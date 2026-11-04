@@ -59,6 +59,9 @@ struct TranscriptionView: View {
     @EnvironmentObject private var transcription: LiveTranscription
     @EnvironmentObject private var notes: NoteStore
     @Binding var noteID: UUID?
+    @Environment(\.dismiss) private var dismiss
+    @State private var savedText = ""
+    @State private var confirmDiscard = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(transcription.status).accessibilityLabel("État : \(transcription.status)")
@@ -74,7 +77,7 @@ struct TranscriptionView: View {
                 .disabled(transcription.isRunning || transcription.isStarting)
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary.opacity(0.3)))
             HStack {
-                Button("Sauvegarder") { if let id = notes.save(id: noteID, text: transcription.text) { noteID = id } }
+                Button("Sauvegarder") { if let id = notes.save(id: noteID, text: transcription.text) { noteID = id; savedText = transcription.text } }
                     .disabled(transcription.isRunning || transcription.isStarting)
                 ShareLink(item: transcription.text) { Label("Partager", systemImage: "square.and.arrow.up") }
                     .disabled(transcription.text.isEmpty || transcription.isRunning || transcription.isStarting)
@@ -82,6 +85,20 @@ struct TranscriptionView: View {
             Text("Sauvegardez avant de quitter cette note.").font(.caption).foregroundStyle(.secondary)
         }
         .padding().navigationTitle("Transcription")
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Retour") {
+                    if transcription.isRunning || transcription.isStarting { transcription.stop() }
+                    if transcription.text != savedText { confirmDiscard = true } else { dismiss() }
+                }
+            }
+        }
+        .onAppear { savedText = transcription.text }
+        .confirmationDialog("Quitter sans sauvegarder ?", isPresented: $confirmDiscard, titleVisibility: .visible) {
+            Button("Supprimer les modifications", role: .destructive) { dismiss() }
+            Button("Continuer la modification", role: .cancel) { }
+        } message: { Text("Les modifications de cette note ne sont pas sauvegardées.") }
         .onDisappear { transcription.stop() }
         .alert("Transcription", isPresented: Binding(get: { transcription.error != nil || notes.error != nil }, set: { if !$0 { transcription.error = nil; notes.error = nil } })) {
             Button("OK") { transcription.error = nil; notes.error = nil }
