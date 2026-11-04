@@ -29,10 +29,37 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
             if FileManager.default.fileExists(atPath: indexURL.path) {
                 recordings = try JSONDecoder().decode([Recording].self, from: Data(contentsOf: indexURL))
             }
+            try recoverOrphanedRecordings()
         } catch { self.error = "Impossible de charger la bibliothèque : \(error.localizedDescription)" }
         NotificationCenter.default.addObserver(self, selector: #selector(interrupted(_:)), name: AVAudioSession.interruptionNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(routeChanged(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(mediaReset(_:)), name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+    }
+
+    // Only recover files with our UUID naming convention and a readable audio container.
+    // Unreadable files are left untouched for possible manual recovery.
+    private func recoverOrphanedRecordings() throws {
+        let known = Set(recordings.map(\.audioFileName))
+        let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles])
+        var recovered: [Recording] = []
+        var unreadable = 0
+        for url in files where url.pathExtension.lowercased() == "m4a" && !known.contains(url.lastPathComponent) {
+            guard let id = UUID(uuidString: url.deletingPathExtension().lastPathComponent) else { continue }
+            guard let audio = try? AVAudioPlayer(contentsOf: url), audio.duration > 0 else {
+                unreadable += 1
+                continue
+            }
+            let created = (try? url.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date()
+            recovered.append(Recording(id: id, title: "Enregistrement récupéré", createdAt: created, audioFileName: url.lastPathComponent, duration: audio.duration))
+        }
+        if !recovered.isEmpty {
+            let updated = recovered + recordings
+            try JSONEncoder().encode(updated).write(to: indexURL, options: .atomic)
+            recordings = updated
+        }
+        if !recovered.isEmpty || unreadable > 0 {
+            error = "\(recovered.count) fichier(s) récupéré(s). \(unreadable) fichier(s) illisible(s) conservé(s) pour une éventuelle récupération manuelle. Vérifiez les fichiers récupérés."
+        }
     }
 
     func start() async {
