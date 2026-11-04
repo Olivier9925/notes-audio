@@ -14,6 +14,7 @@ struct LibraryView: View {
     @State private var editing: Recording?
     @State private var title = ""
     @State private var showingImporter = false
+    @State private var pendingDeletion: Recording?
     var body: some View {
         NavigationStack {
             List {
@@ -46,7 +47,10 @@ struct LibraryView: View {
                                     if store.playingID == item.id { store.stopPlayback() } else { store.play(item) }
                                 }
                                 Button("Renommer") { title = item.title; editing = item }
-                                Button("Supprimer", role: .destructive) { store.delete(item) }
+                                if let url = store.audioURL(for: item) {
+                                    ShareLink(item: url) { Label("Partager l’audio", systemImage: "square.and.arrow.up") }
+                                }
+                                Button("Supprimer", role: .destructive) { pendingDeletion = item }
                             }.buttonStyle(.borderless)
                             if store.playingID == item.id, store.playbackDuration > 0 {
                                 Slider(value: Binding(get: { store.playbackTime }, set: { store.seek(to: $0) }), in: 0...store.playbackDuration)
@@ -56,7 +60,7 @@ struct LibraryView: View {
                         }
                     }
                 }
-                Section("Fonctions à venir") { Text("Transcription, intervenants, résumés et export ne sont pas encore disponibles.") }
+                Section("Fonctions à venir") { Text("Transcription, intervenants, résumés et exports de texte ne sont pas encore disponibles.") }
             }
             .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.audio]) { result in
                 switch result {
@@ -70,6 +74,12 @@ struct LibraryView: View {
                 TextField("Titre", text: $title)
                 Button("Enregistrer") { if let editing, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { store.rename(editing, title: title) }; editing = nil }
                 Button("Annuler", role: .cancel) { editing = nil }
+            }
+            .confirmationDialog("Supprimer cet enregistrement ?", isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }), titleVisibility: .visible) {
+                Button("Supprimer", role: .destructive) { if let item = pendingDeletion { store.delete(item) }; pendingDeletion = nil }
+                Button("Annuler", role: .cancel) { pendingDeletion = nil }
+            } message: {
+                Text("Le fichier local et ses métadonnées seront supprimés.")
             }
             .alert("Erreur", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) {
                 Button("OK") { store.error = nil }

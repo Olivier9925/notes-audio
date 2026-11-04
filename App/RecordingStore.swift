@@ -146,6 +146,14 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
             recordings.removeAll { $0.id == recording.id }; persist()
         } catch { self.error = "Suppression impossible : \(error.localizedDescription)" }
     }
+    func audioURL(for recording: Recording) -> URL? {
+        // Metadata must never resolve outside the application's audio directory.
+        guard !recording.audioFileName.isEmpty,
+              URL(fileURLWithPath: recording.audioFileName).lastPathComponent == recording.audioFileName else { return nil }
+        let url = directory.appendingPathComponent(recording.audioFileName)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
     func importAudio(from source: URL) {
         guard libraryAvailable else { error = "Bibliothèque indisponible."; return }
         let accessible = source.startAccessingSecurityScopedResource()

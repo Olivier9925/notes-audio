@@ -30,7 +30,7 @@ Ce tableau décrit l’état du code et les validations réellement effectuées.
 | Récupération après arrêt brutal | Partiel | Réintégration des fichiers orphelins lisibles ; intégrité et marqueurs non garantis. |
 | Bibliothèque et persistance | Partiel | Liste et index JSON ; les modifications sont bloquées si le chargement échoue. Migrations et réparation à compléter ; non testé sur appareil. |
 | Lecture et déplacement temporel | Partiel | Lecture, arrêt et curseur implémentés ; non compilés ni testés sur appareil. |
-| Renommage et suppression | Partiel | Présents ; suppression fichier/index non transactionnelle. |
+| Renommage et suppression | Partiel | Confirmation avant suppression ; suppression fichier/index non transactionnelle, non testée sur appareil. |
 | Recherche et organisation | Partiel | Recherche par titre ; transcriptions, dossiers et tags absents. |
 | Import audio | Partiel | Sélection et copie locales, validation par le lecteur ; formats et comportement non testés sur appareil. |
 | App Intents, Raccourcis et bouton Action | À faire | |
@@ -45,7 +45,7 @@ Ce tableau décrit l’état du code et les validations réellement effectuées.
 | Clés BYOK et Keychain | À faire | Aucune clé requise pour le prototype actuel. |
 | Consentement aux traitements distants | À faire | Aucun traitement distant actuellement. |
 | File persistante et reprise des traitements | À faire | États esquissés ; orchestration absente. |
-| Exports audio, texte, Markdown, JSON et PDF | À faire | |
+| Exports audio, texte, Markdown, JSON et PDF | Partiel | Partage du fichier audio par la feuille système implémenté, non testé ; exports textuels et PDF absents. |
 | Accessibilité | Partiel | Quelques libellés ; VoiceOver et grandes tailles non testés. |
 | Protection et confidentialité des données | À compléter | Protection des fichiers, suppression et sauvegarde iOS à vérifier. |
 | Documentation | Partiel | README et architecture présents ; guides et recette complète à rédiger. |
