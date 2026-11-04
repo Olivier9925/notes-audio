@@ -1,6 +1,8 @@
-# Notes Audio
+# Ondo
 
 Prototype initial d’une application iOS native, personnelle et locale. **La transcription en direct est une première implémentation non compilée et non validée sur appareil.** Le parcours actif ne crée aucun fichier audio.
+
+L’identifiant de bundle configuré est `com.olivier9925.ondo`.
 
 ## Projet
 
@@ -18,6 +20,7 @@ Le produit est réorienté vers la transcription en direct sans création de fic
 
 | Fonctionnalité | État | Limites |
 |---|---|---|
+| Nom et identifiant | Configurés | Ondo, `com.olivier9925.ondo` ; génération et signature Apple non vérifiées. |
 | Transcription vocale en direct | Première implémentation | Apple Speech en français, reconnaissance sur appareil requise ; disponibilité et durée variables, sans validation sur iPhone. |
 | Microphone sans fichier audio | Première implémentation | Tampons transmis au moteur Speech ; aucun fichier audio créé dans ce parcours. |
 | Correction et partage du texte | Première implémentation | Édition après arrêt et partage système ; non testés. |

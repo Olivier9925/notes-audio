@@ -41,7 +41,7 @@ struct NotesView: View {
                     }
                 }
             }
-            .navigationTitle("Notes Audio")
+            .navigationTitle("Ondo")
             .searchable(text: $search, prompt: "Rechercher dans les notes")
             .navigationDestination(isPresented: $showingEditor) { TranscriptionView(noteID: $selectedID) }
             .confirmationDialog("Supprimer cette note ?", isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }), titleVisibility: .visible) {

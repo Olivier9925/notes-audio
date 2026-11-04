@@ -15,15 +15,16 @@ targets:
       - package: NotesAudioDomain
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.notesaudio.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.olivier9925.ondo
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "5.9"
-        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Notes Audio utilise le microphone pour transcrire votre voix en direct."
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Ondo utilise le microphone pour transcrire votre voix en direct."
     info:
       path: App/Info.plist
       properties:
-        NSMicrophoneUsageDescription: "Notes Audio utilise le microphone pour transcrire votre voix en direct."
-        NSSpeechRecognitionUsageDescription: "Notes Audio utilise la reconnaissance vocale pour transcrire votre voix en direct."
+        CFBundleDisplayName: Ondo
+        NSMicrophoneUsageDescription: "Ondo utilise le microphone pour transcrire votre voix en direct."
+        NSSpeechRecognitionUsageDescription: "Ondo utilise la reconnaissance vocale pour transcrire votre voix en direct."
 schemes:
   NotesAudio:
     build:
