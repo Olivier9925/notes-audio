@@ -21,9 +21,9 @@ Le produit est réorienté vers la transcription en direct sans création de fic
 | Transcription vocale en direct | Première implémentation | Apple Speech en français, reconnaissance sur appareil requise ; disponibilité et durée variables, sans validation sur iPhone. |
 | Microphone sans fichier audio | Première implémentation | Tampons transmis au moteur Speech ; aucun fichier audio créé dans ce parcours. |
 | Correction et partage du texte | Première implémentation | Édition après arrêt et partage système ; non testés. |
-| Sauvegarde locale | Partiel | Une seule note sauvegardée explicitement dans les préférences ; écrase la précédente. |
+| Sauvegarde locale | Partiel | Plusieurs notes dans un fichier JSON atomique ; migration de l’ancienne note unique. Non compilé ni testé. |
 | Autorisations et erreurs | Partiel | Demandes microphone et reconnaissance vocale ; interruptions et limites du service à approfondir. |
-| Bibliothèque de notes, recherche et suppression | À faire | |
+| Bibliothèque de notes, recherche et suppression | Partiel | Liste, recherche dans le texte et suppression confirmée implémentées ; non compilées ni testées. |
 | Diarisation et horodatage | À faire | Aucune attribution d’intervenant n’est inventée. |
 | Résumés IA et clés personnelles | À faire | Aucun traitement distant implémenté. |
 | Raccourcis, bouton Action et Live Activity | À réévaluer | Les anciennes exigences supposaient un enregistrement audio. |
