@@ -22,13 +22,13 @@ Ce tableau décrit l’état du code et les validations réellement effectuées.
 | Domaine et modèles portables | Partiel | Enregistrement, marqueurs et transcriptions esquissés ; modèles et migrations incomplets. |
 | Tests portables | Écrits, non exécutés | Deux tests de modèles ; Swift indisponible dans l’environnement initial. |
 | Capture audio locale | Partiel | Première implémentation AAC/M4A, non compilée ni vérifiée sur iPhone. |
-| Pause, reprise, arrêt | Partiel | Commandes présentes ; transitions et erreurs à valider. |
+| Pause, reprise, arrêt | Partiel | Commandes présentes, arrêt pendant la demande d’autorisation pris en compte ; transitions et erreurs à valider. |
 | Durée, niveau et marqueurs | Partiel | Affichage et ajout de marqueurs présents ; précision et récupération à vérifier. |
 | Interruptions et routes audio | Partiel | Certaines notifications sont traitées ; appels et Bluetooth restent à tester. |
 | Capture en arrière-plan et écran verrouillé | À valider | Mode audio déclaré, comportement réel non testé. |
 | Manque d’espace et finalisation | À faire | Détection et traitement des erreurs insuffisants. |
 | Récupération après arrêt brutal | Partiel | Réintégration des fichiers orphelins lisibles ; intégrité et marqueurs non garantis. |
-| Bibliothèque et persistance | Partiel | Liste et index JSON ; migrations et réparation à compléter. |
+| Bibliothèque et persistance | Partiel | Liste et index JSON ; les modifications sont bloquées si le chargement échoue. Migrations et réparation à compléter ; non testé sur appareil. |
 | Lecture et déplacement temporel | Partiel | Lecture, arrêt et curseur implémentés ; non compilés ni testés sur appareil. |
 | Renommage et suppression | Partiel | Présents ; suppression fichier/index non transactionnelle. |
 | Recherche et organisation | Partiel | Recherche par titre ; transcriptions, dossiers et tags absents. |

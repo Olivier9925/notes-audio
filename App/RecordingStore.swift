@@ -14,6 +14,8 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
     @Published var playbackTime: TimeInterval = 0
     @Published var playbackDuration: TimeInterval = 0
     private var starting = false
+    private var startCancelled = false
+    private var libraryAvailable = false
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
     private var timer: Timer?
@@ -33,7 +35,8 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
                 recordings = try JSONDecoder().decode([Recording].self, from: Data(contentsOf: indexURL))
             }
             try recoverOrphanedRecordings()
-        } catch { self.error = "Impossible de charger la bibliothèque : \(error.localizedDescription)" }
+            libraryAvailable = true
+        } catch { self.error = "Impossible de charger la bibliothèque. Les modifications sont désactivées pour protéger vos données : \(error.localizedDescription)" }
         NotificationCenter.default.addObserver(self, selector: #selector(interrupted(_:)), name: AVAudioSession.interruptionNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(routeChanged(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(mediaReset(_:)), name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
@@ -66,8 +69,10 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
     }
 
     func start() async {
+        guard libraryAvailable else { error = "Bibliothèque indisponible : vérifiez le stockage avant d’enregistrer."; return }
         guard recorder == nil, !starting else { return }
         starting = true
+        startCancelled = false
         defer { starting = false }
         stopPlayback()
         status = "Autorisation du microphone"
@@ -76,7 +81,7 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
         }
         guard granted else { status = "Prêt"; error = "Autorisez le microphone dans Réglages pour enregistrer."; return }
         // A second command may have arrived while permission was pending.
-        guard recorder == nil, status == "Autorisation du microphone" else { return }
+        guard !startCancelled, recorder == nil, status == "Autorisation du microphone" else { status = "Prêt"; return }
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
@@ -113,6 +118,7 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
     func resume() { guard let recorder, !recorder.isRecording else { return }; if recorder.record() { status = "Enregistrement" } else { status = "Erreur"; error = "La reprise a échoué." } }
     func mark() { guard recorder != nil else { return }; refresh(); markers.append(Marker(offset: elapsed)) }
     func stop() {
+        if starting { startCancelled = true; status = "Prêt"; return }
         guard let recorder, let id = activeID, let url = activeURL else { return }
         refresh(); status = "Finalisation"; recorder.stop(); timer?.invalidate(); timer = nil
         self.recorder = nil; activeID = nil; activeURL = nil
@@ -126,10 +132,12 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
         catch { self.error = "Sauvegarde impossible : \(error.localizedDescription)" }
     }
     func rename(_ recording: Recording, title: String) {
+        guard libraryAvailable else { error = "Bibliothèque indisponible."; return }
         guard let i = recordings.firstIndex(where: { $0.id == recording.id }) else { return }
         recordings[i].title = title; persist()
     }
     func delete(_ recording: Recording) {
+        guard libraryAvailable else { error = "Bibliothèque indisponible."; return }
         guard recording.id != activeID else { return }
         if playingID == recording.id { stopPlayback() }
         do {
@@ -139,6 +147,7 @@ final class RecordingStore: NSObject, ObservableObject, AVAudioRecorderDelegate,
         } catch { self.error = "Suppression impossible : \(error.localizedDescription)" }
     }
     func importAudio(from source: URL) {
+        guard libraryAvailable else { error = "Bibliothèque indisponible."; return }
         let accessible = source.startAccessingSecurityScopedResource()
         defer { if accessible { source.stopAccessingSecurityScopedResource() } }
         let ext = source.pathExtension.lowercased()
