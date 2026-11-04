@@ -11,3 +11,44 @@ iOS 17 est provisoirement retenu pour l’interface initiale et devra être ré�
 ## État de validation
 
 Le développement initial a été effectué sous Linux sans Swift, Xcode, SDK Apple ou simulateur. Ni la compilation ni les tests n’ont été exécutés. Aucun accès à un microphone, fournisseur IA ou appareil physique n’a été validé. Voir [architecture et travail restant](docs/architecture.md).
+
+## Avancement des fonctionnalités
+
+Ce tableau décrit l’état du code et les validations réellement effectuées. Il doit être mis à jour à chaque évolution concernée, dans le même changement que le code ou les tests. « Partiel » ne signifie pas que la fonctionnalité est prête à l’emploi.
+
+| Fonctionnalité | État | Limites et validation |
+|---|---|---|
+| Projet SwiftUI et XcodeGen | Ébauche | Génération et compilation non vérifiées. |
+| Domaine et modèles portables | Partiel | Enregistrement, marqueurs et transcriptions esquissés ; modèles et migrations incomplets. |
+| Tests portables | Écrits, non exécutés | Deux tests de modèles ; Swift indisponible dans l’environnement initial. |
+| Capture audio locale | Partiel | Première implémentation AAC/M4A, non compilée ni vérifiée sur iPhone. |
+| Pause, reprise, arrêt | Partiel | Commandes présentes ; transitions et erreurs à valider. |
+| Durée, niveau et marqueurs | Partiel | Affichage et ajout de marqueurs présents ; précision et récupération à vérifier. |
+| Interruptions et routes audio | Partiel | Certaines notifications sont traitées ; appels et Bluetooth restent à tester. |
+| Capture en arrière-plan et écran verrouillé | À valider | Mode audio déclaré, comportement réel non testé. |
+| Manque d’espace et finalisation | À faire | Détection et traitement des erreurs insuffisants. |
+| Récupération après arrêt brutal | Partiel | Réintégration des fichiers orphelins lisibles ; intégrité et marqueurs non garantis. |
+| Bibliothèque et persistance | Partiel | Liste et index JSON ; migrations et réparation à compléter. |
+| Lecture et déplacement temporel | Partiel | Lecture et arrêt présents ; déplacement temporel absent. |
+| Renommage et suppression | Partiel | Présents ; suppression fichier/index non transactionnelle. |
+| Recherche et organisation | Partiel | Recherche par titre ; transcriptions, dossiers et tags absents. |
+| Import audio | À faire | |
+| App Intents, Raccourcis et bouton Action | À faire | |
+| Live Activity et Dynamic Island | À faire | |
+| Transcription Apple Speech | À faire | Capacités et limites à vérifier. |
+| Transcription OpenAI | À faire | |
+| Correction et accès aux segments | À faire | Modèles partiels sans parcours utilisateur. |
+| Diarisation et noms des intervenants | À faire | |
+| Fichiers longs et assemblage | À faire | Découpage et décalages temporels absents. |
+| Résumés OpenAI, Anthropic et Gemini | À faire | |
+| Modèles et validation des comptes rendus | À faire | |
+| Clés BYOK et Keychain | À faire | Aucune clé requise pour le prototype actuel. |
+| Consentement aux traitements distants | À faire | Aucun traitement distant actuellement. |
+| File persistante et reprise des traitements | À faire | États esquissés ; orchestration absente. |
+| Exports audio, texte, Markdown, JSON et PDF | À faire | |
+| Accessibilité | Partiel | Quelques libellés ; VoiceOver et grandes tailles non testés. |
+| Protection et confidentialité des données | À compléter | Protection des fichiers, suppression et sauvegarde iOS à vérifier. |
+| Documentation | Partiel | README et architecture présents ; guides et recette complète à rédiger. |
+| CI macOS | Configurée, non exécutée | Workflow présent ; compilation et tests non validés. |
+| Tests d’intégration et d’interface | À faire | |
+| Recette sur iPhone physique | À faire | Microphone, verrouillage et parcours système non validés. |
