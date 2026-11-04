@@ -1,0 +1,13 @@
+# Architecture et limites
+
+Le paquet `NotesAudioDomain` contient des modèles sans dépendance aux frameworks Apple et une première interface de dépôt. Les fichiers audio seront stockés séparément des métadonnées. Les identifiants des enregistrements, segments et marqueurs sont stables et les transcriptions sont versionnées. La sérialisation actuelle est une base, sans stratégie de migration encore implémentée.
+
+Les adaptations iOS, la persistance, les services audio, les traitements, les fournisseurs IA, la sécurité et l’intégration système restent à construire. Aucun mécanisme de sécurité, de sauvegarde ou de récupération n’est encore garanti. Les capacités exactes et les API devront être vérifiées dans les documentations officielles avant leur implémentation, notamment AudioRecordingIntent, ActivityKit, Speech et les API des fournisseurs. Aucun appel distant n’est effectué.
+
+La validation doit comprendre compilation et tests sur Mac, puis une recette sur iPhone pour les autorisations, le verrouillage, les interruptions, les changements de route, le manque d’espace et la récupération. Un test simulé ne valide pas le microphone physique.
+
+## Première implémentation audio
+
+Un contrôleur isolé sur le thread principal utilise AVAudioRecorder en AAC mono à 64 kbit/s dans un fichier M4A ; ce réglage vise un compromis voix/taille, à valider sur appareil. Les métadonnées JSON sont écrites atomiquement dans Application Support. L’arrêt finalise le fichier ; pause, marqueurs, renommage, recherche par titre, lecture et suppression ont une première interface. Les interruptions et changements de route appellent une pause et demandent une reprise manuelle. Le mode audio en arrière-plan est déclaré, sans validation sur appareil.
+
+Cette version ne fournit pas encore de récupération automatique après fermeture forcée : un fichier non finalisé ou orphelin peut subsister, et sa lisibilité n’est pas garantie. Elle ne détecte pas encore correctement tous les échecs de finalisation ou le manque d’espace ; la suppression fichier/index n’est pas transactionnelle. Les protections et règles de sauvegarde utilisent les valeurs iOS par défaut et restent à vérifier. La lecture ne permet pas encore le déplacement temporel. Ne pas utiliser cette version pour des enregistrements importants avant validation et durcissement.
