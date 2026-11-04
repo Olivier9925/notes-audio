@@ -1,6 +1,6 @@
 # Notes Audio
 
-Prototype initial d’une application iOS native, personnelle et locale. **Le parcours audio local est une première implémentation non compilée et non validée sur appareil.** La transcription, les résumés et les exports restent à développer.
+Prototype initial d’une application iOS native, personnelle et locale. **La transcription en direct est une première implémentation non compilée et non validée sur appareil.** Le parcours actif ne crée aucun fichier audio.
 
 ## Projet
 
@@ -14,41 +14,18 @@ Le développement initial a été effectué sous Linux sans Swift, Xcode, SDK Ap
 
 ## Avancement des fonctionnalités
 
-Ce tableau décrit l’état du code et les validations réellement effectuées. Il doit être mis à jour à chaque évolution concernée, dans le même changement que le code ou les tests. « Partiel » ne signifie pas que la fonctionnalité est prête à l’emploi.
+Le produit est réorienté vers la transcription en direct sans création de fichier audio. Mettre ce tableau à jour à chaque évolution. Les fonctionnalités ci-dessous ne sont pas compilées ni testées sur appareil.
 
-| Fonctionnalité | État | Limites et validation |
+| Fonctionnalité | État | Limites |
 |---|---|---|
-| Projet SwiftUI et XcodeGen | Ébauche | Génération et compilation non vérifiées. |
-| Domaine et modèles portables | Partiel | Enregistrement, marqueurs et transcriptions esquissés ; modèles et migrations incomplets. |
-| Tests portables | Écrits, non exécutés | Deux tests de modèles ; Swift indisponible dans l’environnement initial. |
-| Capture audio locale | Partiel | Première implémentation AAC/M4A, non compilée ni vérifiée sur iPhone. |
-| Pause, reprise, arrêt | Partiel | Commandes présentes, arrêt pendant la demande d’autorisation pris en compte ; transitions et erreurs à valider. |
-| Durée, niveau et marqueurs | Partiel | Affichage et ajout de marqueurs présents ; précision et récupération à vérifier. |
-| Interruptions et routes audio | Partiel | Certaines notifications sont traitées ; appels et Bluetooth restent à tester. |
-| Capture en arrière-plan et écran verrouillé | À valider | Mode audio déclaré, comportement réel non testé. |
-| Manque d’espace et finalisation | À faire | Détection et traitement des erreurs insuffisants. |
-| Récupération après arrêt brutal | Partiel | Réintégration des fichiers orphelins lisibles ; intégrité et marqueurs non garantis. |
-| Bibliothèque et persistance | Partiel | Liste et index JSON ; les modifications sont bloquées si le chargement échoue. Migrations et réparation à compléter ; non testé sur appareil. |
-| Lecture et déplacement temporel | Partiel | Lecture, arrêt et curseur implémentés ; non compilés ni testés sur appareil. |
-| Renommage et suppression | Partiel | Confirmation avant suppression ; suppression fichier/index non transactionnelle, non testée sur appareil. |
-| Recherche et organisation | Partiel | Recherche par titre ; transcriptions, dossiers et tags absents. |
-| Import audio | Partiel | Sélection et copie locales, validation par le lecteur ; formats et comportement non testés sur appareil. |
-| App Intents, Raccourcis et bouton Action | À faire | |
-| Live Activity et Dynamic Island | À faire | |
-| Transcription Apple Speech | À faire | Capacités et limites à vérifier. |
-| Transcription OpenAI | À faire | |
-| Correction et accès aux segments | À faire | Modèles partiels sans parcours utilisateur. |
-| Diarisation et noms des intervenants | À faire | |
-| Fichiers longs et assemblage | À faire | Découpage et décalages temporels absents. |
-| Résumés OpenAI, Anthropic et Gemini | À faire | |
-| Modèles et validation des comptes rendus | À faire | |
-| Clés BYOK et Keychain | À faire | Aucune clé requise pour le prototype actuel. |
-| Consentement aux traitements distants | À faire | Aucun traitement distant actuellement. |
-| File persistante et reprise des traitements | À faire | États esquissés ; orchestration absente. |
-| Exports audio, texte, Markdown, JSON et PDF | Partiel | Partage du fichier audio par la feuille système implémenté, non testé ; exports textuels et PDF absents. |
-| Accessibilité | Partiel | Quelques libellés ; VoiceOver et grandes tailles non testés. |
-| Protection et confidentialité des données | À compléter | Protection des fichiers, suppression et sauvegarde iOS à vérifier. |
-| Documentation | Partiel | README et architecture présents ; guides et recette complète à rédiger. |
-| CI macOS | Configurée, non exécutée | Workflow présent ; compilation et tests non validés. |
-| Tests d’intégration et d’interface | À faire | |
-| Recette sur iPhone physique | À faire | Microphone, verrouillage et parcours système non validés. |
+| Transcription vocale en direct | Première implémentation | Apple Speech en français, reconnaissance sur appareil requise ; disponibilité et durée variables, sans validation sur iPhone. |
+| Microphone sans fichier audio | Première implémentation | Tampons transmis au moteur Speech ; aucun fichier audio créé dans ce parcours. |
+| Correction et partage du texte | Première implémentation | Édition après arrêt et partage système ; non testés. |
+| Sauvegarde locale | Partiel | Une seule note sauvegardée explicitement dans les préférences ; écrase la précédente. |
+| Autorisations et erreurs | Partiel | Demandes microphone et reconnaissance vocale ; interruptions et limites du service à approfondir. |
+| Bibliothèque de notes, recherche et suppression | À faire | |
+| Diarisation et horodatage | À faire | Aucune attribution d’intervenant n’est inventée. |
+| Résumés IA et clés personnelles | À faire | Aucun traitement distant implémenté. |
+| Raccourcis, bouton Action et Live Activity | À réévaluer | Les anciennes exigences supposaient un enregistrement audio. |
+| Tests et compilation | Non exécutés | Swift et Xcode indisponibles dans cet environnement. |
+| Ancien code d’enregistrement | Conservé, inaccessible dans l’interface | Les anciens fichiers ne sont ni supprimés ni migrés automatiquement. |
